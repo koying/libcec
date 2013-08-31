@@ -297,7 +297,7 @@ namespace CEC {
 /*!
  * the path to use for the TDA995x's CEC wire
  */
-#define CEC_EXYNOS_PATH		"/dev/CEC"
+#define CEC_EXYNOS_PATH		"/dev/tegra_cec"
 
 /*!
  * the name of the virtual COM port to use for the EXYNOS' CEC wire
