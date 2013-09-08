@@ -50,6 +50,13 @@ AC_ARG_ENABLE([cubox],
   [use_tda995x=$enableval],
   [use_tda995x=no])
 
+## TEGRA support
+AC_ARG_ENABLE([tegra],
+  [AS_HELP_STRING([--enable-tegra],
+  [enable support for Tegra (default is no)])],
+  [use_tegra=$enableval],
+  [use_tegra=no])
+
 ## Optional path to the tda995x dev toolkit
 AC_ARG_WITH([tda995x-toolkit-path],
   [AS_HELP_STRING([--with-tda995x-toolkit-path],
@@ -266,6 +273,18 @@ if test "x$use_tda995x" != "xno"; then
 else
   AM_CONDITIONAL(USE_TDA995X_API, false)
   features="$features\n  TDA995x support :\t\t\tno"
+fi
+
+## mark TEGRA support as available
+if test "x$use_tegra" != "xno"; then
+  AC_DEFINE([HAVE_TEGRA_API],[1],[Define to 1 to include Tegra support])
+  AM_CONDITIONAL(USE_TEGRA_API, true)
+  features="$features\n  TEGRA support :\t\t\tyes"
+  LIB_INFO="$LIB_INFO 'TEGRA'"
+  CPPFLAGS="$CPPFLAGS $TEGRA_CFLAGS"
+else
+  AM_CONDITIONAL(USE_TEGRA_API, false)
+  features="$features\n  TEGRA support :\t\t\tno"
 fi
 
 ## check if our build system is complete

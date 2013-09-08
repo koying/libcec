@@ -295,6 +295,16 @@ namespace CEC {
 #define CEC_TDA995x_VIRTUAL_COM		"CuBox"
 
 /*!
+ * the path to use for the TEGRA's CEC wire
+ */
+#define CEC_TEGRA_PATH		"/dev/tegra_cec"
+
+/*!
+ * the name of the virtual COM port to use for the TEGRA's CEC wire
+ */
+#define CEC_TEGRA_VIRTUAL_COM		"Tegra"
+
+/*!
  * Mimimum client version
  */
 #define CEC_MIN_LIB_VERSION          2
@@ -857,7 +867,8 @@ typedef enum cec_adapter_type
   ADAPTERTYPE_P8_EXTERNAL      = 0x1,
   ADAPTERTYPE_P8_DAUGHTERBOARD = 0x2,
   ADAPTERTYPE_RPI              = 0x100,
-  ADAPTERTYPE_TDA995x          = 0x200
+  ADAPTERTYPE_TDA995x          = 0x200,
+  ADAPTERTYPE_TEGRA            = 0x400
 } cec_adapter_type;
 
 typedef struct cec_menu_language

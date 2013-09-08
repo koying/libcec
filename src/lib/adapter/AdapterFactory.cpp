@@ -52,6 +52,11 @@
 #include "TDA995x/TDA995xCECAdapterCommunication.h"
 #endif
 
+#if defined(HAVE_TEGRA_API)
+#include "Tegra/TegraCECAdapterDetection.h"
+#include "Tegra/TegraCECAdapterCommunication.h"
+#endif
+
 using namespace std;
 using namespace CEC;
 
@@ -109,6 +114,18 @@ int8_t CAdapterFactory::DetectAdapters(cec_adapter_descriptor *deviceList, uint8
   }
 #endif
 
+#if defined(HAVE_TEGRA_API)
+  if (iAdaptersFound < iBufSize && CTegraCECAdapterDetection::FindAdapter())
+  {
+    snprintf(deviceList[iAdaptersFound].strComPath, sizeof(deviceList[iAdaptersFound].strComPath), CEC_TEGRA_PATH);
+    snprintf(deviceList[iAdaptersFound].strComName, sizeof(deviceList[iAdaptersFound].strComName), CEC_TEGRA_VIRTUAL_COM);
+    deviceList[iAdaptersFound].iVendorId = 0;
+    deviceList[iAdaptersFound].iProductId = 0;
+    deviceList[iAdaptersFound].adapterType = ADAPTERTYPE_TEGRA;
+    iAdaptersFound++;
+  }
+#endif
+
 #if !defined(HAVE_RPI_API) && !defined(HAVE_P8_USB) && !defined(HAVE_TDA995X_API)
 #error "libCEC doesn't have support for any type of adapter. please check your build system or configuration"
 #endif
@@ -123,6 +140,11 @@ IAdapterCommunication *CAdapterFactory::GetInstance(const char *strPort, uint16_
     return new CTDA995xCECAdapterCommunication(m_lib->m_cec);
 #endif
 
+#if defined(HAVE_TEGRA_API)
+  if (!strcmp(strPort, CEC_TEGRA_VIRTUAL_COM))
+    return new CTegraCECAdapterCommunication(m_lib->m_cec);
+#endif
+
 #if defined(HAVE_RPI_API)
   if (!strcmp(strPort, CEC_RPI_VIRTUAL_COM))
     return new CRPiCECAdapterCommunication(m_lib->m_cec);
@@ -132,9 +154,7 @@ IAdapterCommunication *CAdapterFactory::GetInstance(const char *strPort, uint16_
   return new CUSBCECAdapterCommunication(m_lib->m_cec, strPort, iBaudRate);
 #endif
 
-#if !defined(HAVE_RPI_API) && !defined(HAVE_P8_USB) && !defined(HAVE_TDA995X_API)
   return NULL;
-#endif
 }
 
 void CAdapterFactory::InitVideoStandalone(void)
