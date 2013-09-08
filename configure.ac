@@ -358,7 +358,7 @@ if test "x$HAVE_UNAME" = "xyes"; then
 fi
 
 ## redefine the LIBS, so cec-client isn't linked against things they don't need
-LIBS_LIBCEC="$LIBS"
+LIBS_LIBCEC="$LIBS -landroid -llog"
 LIBS="$libs_client"
 
 CXXFLAGS="$CXXFLAGS -fPIC -Wall -Wextra -Wno-missing-field-initializers"

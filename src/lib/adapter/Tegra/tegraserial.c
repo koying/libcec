@@ -27,8 +27,20 @@
 /* drv. header */
 #include "cec.h"
 
-#define ALOGE(args...) printf(args);
-#define ALOGI(args...) printf(args);
+#include "android/log.h"
+
+#define ALOGE(args...) android_printf(args);
+#define ALOGI(args...) android_printf(args);
+
+int android_printf(const char *format, ...)
+{
+  // For use before CLog is setup by XBMC_Run()
+  va_list args;
+  va_start(args, format);
+  int result = __android_log_vprint(ANDROID_LOG_VERBOSE, "XBMC", format, args);
+  va_end(args);
+  return result;
+}
 
 
 #define CEC_DEBUG 1
@@ -228,49 +240,37 @@ int CECReceiveMessage(unsigned char *buffer, int size, long timeout)
 #endif
 
     int bytes = 0;
-    fd_set rfds;
-    struct timeval tv;
-    int retval;
 
     if (fd == -1) {
         ALOGE("open device first!\n");
         return 0;
     }
 
-    tv.tv_sec = 0;
-    tv.tv_usec = timeout;
-
-    FD_ZERO(&rfds);
-    FD_SET(fd, &rfds);
-
-    retval = select(fd + 1, &rfds, NULL, NULL, &tv);
-
-    if (retval == -1) {
-        return 0;
-    } else if (retval) {
-        char teg_buf[2];
-        while (1)
-        {
-            int ret = read(fd, teg_buf, 2);
-            if (ret = -EAGAIN)
-                continue;
-            if (ret != 2)
-                break;
-            int j=0;
-            for (; j<2; j++)
-            {
-                if (teg_buf[j])
-                    buffer[++bytes] = teg_buf[j];
-                else
-                    break;
-            }
-        }
+    char teg_buf[2];
+    while (1)
+    {
+      int ret = read(fd, teg_buf, 2);
 #if CEC_DEBUG
-        ALOGI("     size(%d)", bytes);
-        if(bytes > 0)
-            CECPrintFrame(buffer, bytes);
+        ALOGI("    (%d)", ret);
 #endif
+      if (ret == -EAGAIN)
+        continue;
+      if (ret != 2)
+        break;
+      int j=0;
+      for (; j<2; j++)
+      {
+        if (teg_buf[j])
+          buffer[++bytes] = teg_buf[j];
+        else
+          break;
+      }
     }
+#if CEC_DEBUG
+    ALOGI("     size(%d)", bytes);
+    if(bytes > 0)
+      CECPrintFrame(buffer, bytes);
+#endif
 
     return bytes;
 }
